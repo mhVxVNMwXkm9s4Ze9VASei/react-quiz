@@ -7,6 +7,7 @@ import StartScreen from "./StartScreen";
 import Question from "./Question";
 import NextButton from "./NextButton";
 import Progress from "./Progress";
+import FinishedScreen from "./FinishedScreen";
 
 const initialState = {
 	answer: null,
@@ -29,6 +30,11 @@ function reducer(state, action) {
 				...state,
 				status: "ready",
 				questions: action.payload,
+			};
+		case "finished":
+			return {
+				...state,
+				status: "finished",
 			};
 		case "newAnswer":
 			const question = state.questions.at(state.index);
@@ -64,7 +70,7 @@ export default function App() {
 	);
 
 	const numQuestions = questions.length;
-	const totalPoints = questions.reduce((prev, cur) => prev + cur.points, 0);
+	const maxPoints = questions.reduce((prev, cur) => prev + cur.points, 0);
 
 	useEffect(() => {
 		fetch("http://localhost:8000/questions")
@@ -97,7 +103,7 @@ export default function App() {
 							index={index}
 							numQuestions={numQuestions}
 							points={points}
-							totalPoints={totalPoints}
+							maxPoints={maxPoints}
 						/>
 						<Question
 							answer={answer}
@@ -107,8 +113,16 @@ export default function App() {
 						<NextButton
 							answer={answer}
 							dispatch={dispatch}
+							index={index}
+							numQuestions={numQuestions}
 						/>
 					</>
+				)}
+				{status === "finished" && (
+					<FinishedScreen
+						maxPoints={maxPoints}
+						points={points}
+					/>
 				)}
 			</Main>
 		</div>
