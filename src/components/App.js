@@ -7,7 +7,9 @@ import StartScreen from "./StartScreen";
 import Question from "./Question";
 
 const initialState = {
+	answer: null,
 	index: 0,
+	points: 0,
 	questions: [],
 	// Valid statuses are active, error, finished, loading and ready.
 	status: "loading",
@@ -26,6 +28,17 @@ function reducer(state, action) {
 				status: "ready",
 				questions: action.payload,
 			};
+		case "newAnswer":
+			const question = state.questions.at(state.index);
+
+			return {
+				...state,
+				answer: action.payload,
+				points:
+					action.payload === question.correctOption
+						? state.points + question.points
+						: state.points,
+			};
 		case "start":
 			return {
 				...state,
@@ -37,7 +50,7 @@ function reducer(state, action) {
 }
 
 export default function App() {
-	const [{ index, questions, status }, dispatch] = useReducer(
+	const [{ answer, index, questions, status }, dispatch] = useReducer(
 		reducer,
 		initialState
 	);
@@ -68,7 +81,13 @@ export default function App() {
 						numQuestions={numQuestions}
 					/>
 				)}
-				{status === "active" && <Question question={questions[index]} />}
+				{status === "active" && (
+					<Question
+						answer={answer}
+						dispatch={dispatch}
+						question={questions[index]}
+					/>
+				)}
 			</Main>
 		</div>
 	);
