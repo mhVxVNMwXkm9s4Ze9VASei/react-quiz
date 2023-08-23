@@ -8,6 +8,8 @@ import Question from "./Question";
 import NextButton from "./NextButton";
 import Progress from "./Progress";
 import FinishedScreen from "./FinishedScreen";
+import Footer from "./Footer";
+import Timer from "./Timer";
 
 const initialState = {
 	answer: null,
@@ -17,7 +19,10 @@ const initialState = {
 	questions: [],
 	// Valid statuses are active, error, finished, loading and ready.
 	status: "loading",
+	timeRemaining: null,
 };
+
+const SECONDS_PER_QUESTION = 30;
 
 function reducer(state, action) {
 	switch (action.type) {
@@ -67,6 +72,13 @@ function reducer(state, action) {
 			return {
 				...state,
 				status: "active",
+				timeRemaining: state.questions.length * SECONDS_PER_QUESTION,
+			};
+		case "tick":
+			return {
+				...state,
+				timeRemaining: state.timeRemaining - 1,
+				status: state.timeRemaining === 0 ? "finished" : state.status,
 			};
 		default:
 			throw new Error("Unknown action.");
@@ -74,8 +86,10 @@ function reducer(state, action) {
 }
 
 export default function App() {
-	const [{ answer, highScore, index, points, questions, status }, dispatch] =
-		useReducer(reducer, initialState);
+	const [
+		{ answer, highScore, index, points, questions, timeRemaining, status },
+		dispatch,
+	] = useReducer(reducer, initialState);
 
 	const numQuestions = questions.length;
 	const maxPoints = questions.reduce((prev, cur) => prev + cur.points, 0);
@@ -118,12 +132,18 @@ export default function App() {
 							dispatch={dispatch}
 							question={questions[index]}
 						/>
-						<NextButton
-							answer={answer}
-							dispatch={dispatch}
-							index={index}
-							numQuestions={numQuestions}
-						/>
+						<Footer>
+							<Timer
+								dispatch={dispatch}
+								timeRemaining={timeRemaining}
+							/>
+							<NextButton
+								answer={answer}
+								dispatch={dispatch}
+								index={index}
+								numQuestions={numQuestions}
+							/>
+						</Footer>
 					</>
 				)}
 				{status === "finished" && (
