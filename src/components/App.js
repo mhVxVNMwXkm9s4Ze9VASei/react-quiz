@@ -11,6 +11,7 @@ import FinishedScreen from "./FinishedScreen";
 
 const initialState = {
 	answer: null,
+	highScore: 0,
 	index: 0,
 	points: 0,
 	questions: [],
@@ -35,6 +36,8 @@ function reducer(state, action) {
 			return {
 				...state,
 				status: "finished",
+				highScore:
+					state.points > state.highScore ? state.points : state.highScore,
 			};
 		case "newAnswer":
 			const question = state.questions.at(state.index);
@@ -64,10 +67,8 @@ function reducer(state, action) {
 }
 
 export default function App() {
-	const [{ answer, index, points, questions, status }, dispatch] = useReducer(
-		reducer,
-		initialState
-	);
+	const [{ answer, highScore, index, points, questions, status }, dispatch] =
+		useReducer(reducer, initialState);
 
 	const numQuestions = questions.length;
 	const maxPoints = questions.reduce((prev, cur) => prev + cur.points, 0);
@@ -120,6 +121,7 @@ export default function App() {
 				)}
 				{status === "finished" && (
 					<FinishedScreen
+						highScore={highScore}
 						maxPoints={maxPoints}
 						points={points}
 					/>
